@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import notes from "./notes";
+import Quill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import parse from "html-react-parser";
 
 const bMajorRow = notes.bMajorRow;
 const cMajorRow = notes.cMajorRow;
@@ -22,10 +25,9 @@ function convertAccordionToNote(accordionNote) {
 
   return note;
 }
-
 function parseAccordionNote(accordionNoteStr) {
   const buttonNumber = parseInt(accordionNoteStr.replace(/[^0-9]/g, ""));
-  const direction = accordionNoteStr.includes("<b>") ? "pull" : "push";
+  const direction = accordionNoteStr.includes("<strong>") ? "pull" : "push";
   const row = accordionNoteStr.includes("*") ? "outside" : "inside";
 
   return {
@@ -39,34 +41,29 @@ function StandardConverter() {
   const [accordionNotes, setAccordionNotes] = useState("");
   const [standardNotes, setStandardNotes] = useState("");
 
-  const handleAccordionNotesChange = (event) => {
-    setAccordionNotes(event.target.value);
+  const handleAccordionNotesChange = (html) => {
+    setAccordionNotes(html);
   };
 
   const convertToStandard = () => {
-    const accordionNotesArray = accordionNotes.split(" ");
+    const parser = new DOMParser();
+    const parsedHtml = parser.parseFromString(accordionNotes, "text/html");
+    const accordionNotesArray = parsedHtml.body.innerHTML.match(
+      /<strong>.*?<\/strong>|[^<\s]+/g
+    );
     const standardNotesArray = accordionNotesArray.map((noteStr) => {
       const accordionNote = parseAccordionNote(noteStr);
       return convertAccordionToNote(accordionNote);
     });
 
-    setStandardNotes(standardNotesArray.join(" "));
+    setStandardNotes(standardNotesArray.join("\n"));
   };
 
   return (
     <div>
-      <h2>Standard Converter</h2>
-      Accordion notes:
-      <textarea
-        value={accordionNotes}
-        onChange={handleAccordionNotesChange}
-        rows="10"
-        cols="50"
-      />
-      <br />
+      <Quill value={accordionNotes} onChange={handleAccordionNotesChange} />
       <button onClick={convertToStandard}>Convert to Standard</button>
-      <br />
-      <pre>{standardNotes}</pre>
+      <div>{standardNotes}</div>
     </div>
   );
 }
