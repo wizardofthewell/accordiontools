@@ -1,24 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import Transposer from "./Transposer";
+import AccordionConverter from "./AccordionConverter";
+import StandardConverter from "./StandardConverter";
+import "./App.css";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <h1>Accordion Tools</h1>
+        <ul>
+          <li>
+            <Link to="/Transposer">Transposer</Link>
+          </li>
+          <li>
+            <Link to="/AccordionConverter">Standard to Accordion</Link>
+          </li>
+          <li>
+            <Link to="/StandardConverter">Accordion to Standard</Link>
+          </li>
+        </ul>
+
+        <Routes>
+          <Route path="/Transposer" element={<Transposer />} />
+          <Route path="/AccordionConverter" element={<AccordionConverter />} />
+          <Route path="/StandardConverter" element={<StandardConverter />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
