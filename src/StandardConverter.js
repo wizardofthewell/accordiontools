@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import notes from "./notes";
-import Quill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import { useEditor, EditorContent } from "@tiptap/react";
+import { Editor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import parse from "html-react-parser";
 
 const bMajorRow = notes.bMajorRow;
@@ -25,45 +26,64 @@ function convertAccordionToNote(accordionNote) {
 
   return note;
 }
-function parseAccordionNote(accordionNoteStr) {
-  const buttonNumber = parseInt(accordionNoteStr.replace(/[^0-9]/g, ""));
-  const direction = accordionNoteStr.includes("<strong>") ? "pull" : "push";
-  const row = accordionNoteStr.includes("*") ? "outside" : "inside";
+const parseAccordionNote = (accordionNoteStr) => {
+  const parser = new DOMParser();
+  const parsedHtml = parser.parseFromString(accordionNoteStr, "text/html");
+  const spans = parsedHtml.querySelectorAll("p > span, p > strong");
+  const notes = Array.from(spans).map((span) => {
+    const isBold = span.tagName.toLowerCase() === "strong";
+    const numbers = span.textContent.trim().split(" ").map(Number);
+    return numbers.map((number) => ({ number, isBold }));
+  });
 
-  return {
-    buttonNumber,
-    direction,
-    row,
-  };
-}
+  const flatNotes = notes.flat();
+
+  return flatNotes.map((note) => {
+    const { number, isBold } = note;
+    const direction = isBold ? "pull" : "push";
+    const row = isBold ? "outside" : "inside";
+
+    return {
+      buttonNumber: number,
+      direction,
+      row,
+    };
+  });
+};
 
 function StandardConverter() {
   const [accordionNotes, setAccordionNotes] = useState("");
   const [standardNotes, setStandardNotes] = useState("");
 
-  const handleAccordionNotesChange = (html) => {
-    setAccordionNotes(html);
-  };
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: accordionNotes,
+    onUpdate: ({ editor }) => {
+      setAccordionNotes(editor.getHTML());
+    },
+  });
 
   const convertToStandard = () => {
-    const parser = new DOMParser();
-    const parsedHtml = parser.parseFromString(accordionNotes, "text/html");
-    const accordionNotesArray = parsedHtml.body.innerHTML.match(
-      /<strong>.*?<\/strong>|[^<\s]+/g
-    );
-    const standardNotesArray = accordionNotesArray.map((noteStr) => {
-      const accordionNote = parseAccordionNote(noteStr);
-      return convertAccordionToNote(accordionNote);
-    });
+    if (!editor) {
+      console.error("Editor is not initialized yet");
+      return;
+    }
 
-    setStandardNotes(standardNotesArray.join("\n"));
+    const accordionNotesHTML = editor.getHTML();
+    console.log("Accordion notes HTML:", accordionNotesHTML);
+
+    const accordionNotes = parseAccordionNote(accordionNotesHTML);
+    console.log("Accordion notes:", accordionNotes);
+
+    const standardNotes = accordionNotes.map(convertAccordionToNote);
+
+    setStandardNotes(standardNotes.join("\n"));
   };
 
   return (
     <div>
-      <Quill value={accordionNotes} onChange={handleAccordionNotesChange} />
+      <EditorContent editor={editor} />
       <button onClick={convertToStandard}>Convert to Standard</button>
-      <div>{standardNotes}</div>
     </div>
   );
 }

@@ -9,41 +9,56 @@ const cMajorRow = notes.cMajorRow;
 function convertNoteToAccordion(note) {
   let buttonNumber, direction, row;
 
-  // Check each button in the C Major row
-  for (let i = 1; i <= 11; i++) {
-    if (cMajorRow.push[i] === note) {
-      buttonNumber = i;
-      direction = "push";
-      row = "inside";
-      break;
-    } else if (cMajorRow.pull[i] === note) {
-      buttonNumber = i;
-      direction = "pull";
-      row = "inside";
-      break;
-    }
-  }
+  // Extract the root and octave from the note
+  let root = note.slice(0, -1);
+  let octave = parseInt(note.slice(-1));
 
-  // If not found, check each button in the B Major row
-  if (!buttonNumber) {
-    for (let i = 1; i <= 12; i++) {
-      if (bMajorRow.push[i] === note) {
+  // Check each button in the C Major and B Major rows
+  while (octave >= 0 && octave <= 8) {
+    let newNote = root + octave;
+
+    for (let i = 1; i <= 11; i++) {
+      if (cMajorRow.push[i] === newNote) {
         buttonNumber = i;
         direction = "push";
-        row = "outside";
+        row = "inside";
         break;
-      } else if (bMajorRow.pull[i] === note) {
+      } else if (cMajorRow.pull[i] === newNote) {
         buttonNumber = i;
         direction = "pull";
-        row = "outside";
+        row = "inside";
         break;
       }
     }
+
+    if (!buttonNumber) {
+      for (let i = 1; i <= 12; i++) {
+        if (bMajorRow.push[i] === newNote) {
+          buttonNumber = i;
+          direction = "push";
+          row = "outside";
+          break;
+        } else if (bMajorRow.pull[i] === newNote) {
+          buttonNumber = i;
+          direction = "pull";
+          row = "outside";
+          break;
+        }
+      }
+    }
+
+    // If found, break the loop
+    if (buttonNumber) {
+      break;
+    }
+
+    // If not found, try the next octave
+    octave++;
   }
 
   // If still not found, return null
   if (!buttonNumber) {
-    return null;
+    return note;
   }
 
   return {
