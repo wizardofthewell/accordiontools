@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/accordiontools/static/css/main.755a117c.css",
-    "main.js": "/accordiontools/static/js/main.9924f259.js",
+    "main.js": "/accordiontools/static/js/main.d4b66b18.js",
     "static/js/453.5ebbe935.chunk.js": "/accordiontools/static/js/453.5ebbe935.chunk.js",
     "index.html": "/accordiontools/index.html",
     "main.755a117c.css.map": "/accordiontools/static/css/main.755a117c.css.map",
-    "main.9924f259.js.map": "/accordiontools/static/js/main.9924f259.js.map",
+    "main.d4b66b18.js.map": "/accordiontools/static/js/main.d4b66b18.js.map",
     "453.5ebbe935.chunk.js.map": "/accordiontools/static/js/453.5ebbe935.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.755a117c.css",
-    "static/js/main.9924f259.js"
+    "static/js/main.d4b66b18.js"
   ]
 }
