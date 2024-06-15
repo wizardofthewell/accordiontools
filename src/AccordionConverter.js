@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { noFlatsOnlySharps } from "./Transposer";
-import notes from "./notes";
+import notes from "./Notes/BC.json";
 
-const bMajorRow = notes.bMajorRow;
+const outsideRow = notes.bMajorRow;
 
-const cMajorRow = notes.cMajorRow;
+const insideRow = notes.cMajorRow;
+
+const insideRowLength = Object.keys(insideRow.push).length;
+const outsideRowLength = Object.keys(outsideRow.push).length;
 
 function convertNoteToAccordion(note) {
   let buttonNumber, direction, row;
@@ -17,13 +20,13 @@ function convertNoteToAccordion(note) {
   while (octave >= 0 && octave <= 8) {
     let newNote = root + octave;
 
-    for (let i = 1; i <= 11; i++) {
-      if (cMajorRow.push[i] === newNote) {
+    for (let i = 1; i <= insideRowLength; i++) {
+      if (insideRow.push[i] === newNote) {
         buttonNumber = i;
         direction = "push";
         row = "inside";
         break;
-      } else if (cMajorRow.pull[i] === newNote) {
+      } else if (insideRow.pull[i] === newNote) {
         buttonNumber = i;
         direction = "pull";
         row = "inside";
@@ -32,13 +35,13 @@ function convertNoteToAccordion(note) {
     }
 
     if (!buttonNumber) {
-      for (let i = 1; i <= 12; i++) {
-        if (bMajorRow.push[i] === newNote) {
+      for (let i = 1; i <= outsideRowLength; i++) {
+        if (outsideRow.push[i] === newNote) {
           buttonNumber = i;
           direction = "push";
           row = "outside";
           break;
-        } else if (bMajorRow.pull[i] === newNote) {
+        } else if (outsideRow.pull[i] === newNote) {
           buttonNumber = i;
           direction = "pull";
           row = "outside";
@@ -52,11 +55,11 @@ function convertNoteToAccordion(note) {
       break;
     }
 
-    // If not found, try the next octave
-    octave++;
+    // If not found, try the octave above and below
+    octave += 1;
   }
 
-  // If still not found, return null
+  // If still not found, return the original input
   if (!buttonNumber) {
     return note;
   }
